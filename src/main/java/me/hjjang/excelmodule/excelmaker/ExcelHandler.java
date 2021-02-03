@@ -1,10 +1,10 @@
 package me.hjjang.excelmodule.excelmaker;
 
 import me.hjjang.excelmodule.annotation.ExcelCellMapping;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,13 +16,14 @@ import java.util.*;
 
 public class ExcelHandler<T> {
 
-    private static final String XLS_EXTENSION = ".xls";
+    private static final String XLS_EXTENSION = ".xlsx";
 
     public void excelMaker(String fileName,List<T> dataList, Class clazz) throws IllegalAccessException, NoSuchFieldException, IOException {
         File file = new File(fileName + XLS_EXTENSION);
         try (FileOutputStream fos = new FileOutputStream(file)) {
-            HSSFWorkbook newWorkBook = new HSSFWorkbook();
-            HSSFSheet newSheet = newWorkBook.createSheet();
+
+            XSSFWorkbook newWorkBook = new XSSFWorkbook();
+            XSSFSheet newSheet = newWorkBook.createSheet();
             Map<Integer, String> headerIndexMap = new HashMap<>();
             List<String> headers = new ArrayList<>();
             Field[] dtoFields = clazz.getDeclaredFields();
@@ -35,9 +36,9 @@ public class ExcelHandler<T> {
 
     }
 
-    private void writeCell(List<T> dataList, HSSFSheet newSheet, List<String> headers, Map<Integer, String> headerIndexMap, Class clazz) throws IllegalAccessException, NoSuchFieldException {
+    private void writeCell(List<T> dataList, XSSFSheet newSheet, List<String> headers, Map<Integer, String> headerIndexMap, Class clazz) throws IllegalAccessException, NoSuchFieldException {
         for (int i = 0; i < dataList.size(); i++) {
-            HSSFRow bodyRow = newSheet.createRow(i + 1);
+            XSSFRow bodyRow = newSheet.createRow(i + 1);
             T object = dataList.get(i);
             for (int j = 0; j < headers.size(); j++) {
                 Cell cell = bodyRow.createCell(j);
@@ -77,8 +78,8 @@ public class ExcelHandler<T> {
         }
     }
 
-    private void inputHeader(HSSFSheet newSheet, List<String> headers) {
-        HSSFRow headerRow = newSheet.createRow(0);
+    private void inputHeader(XSSFSheet newSheet, List<String> headers) {
+        XSSFRow headerRow = newSheet.createRow(0);
         for (int i = 0; i < headers.size(); i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers.get(i));
