@@ -4,9 +4,12 @@ import me.hjjang.excelmodule.domain.ObjectForTest;
 import me.hjjang.excelmodule.domain.Person;
 import me.hjjang.excelmodule.domain.Team;
 import me.hjjang.excelmodule.excelmaker.ExcelHandler;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +17,7 @@ import java.util.List;
 class ExcelHandlerTest {
 
     @Test
-    void createExcel() throws NoSuchFieldException, IOException, IllegalAccessException {
+    void createExcel() throws NoSuchFieldException, IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ClassNotFoundException {
         ExcelHandler excelHandler = new ExcelHandler();
         String fileName = "TestExcel";
         List<Person> personList = new ArrayList<>();
@@ -44,6 +47,17 @@ class ExcelHandlerTest {
         objectForTestList.add(new ObjectForTest(Long.valueOf(104L), 104L, "String4","문자열4", Integer.valueOf(104),104, LocalDateTime.now()));
 
         excelHandler.excelMaker("ExcelFileTest",objectForTestList, ObjectForTest.class);
+
+    }
+
+    @Test
+    void cellStyleFormat() {
+        XSSFWorkbook newWorkBook = new XSSFWorkbook();
+        XSSFCellStyle cellStyle = newWorkBook.createCellStyle();
+        for(int i = 0; i < 50; i++) {
+            cellStyle.setDataFormat(i);
+            System.out.println(cellStyle.getDataFormat() + " : "+cellStyle.getDataFormatString());
+        }
 
     }
 }
