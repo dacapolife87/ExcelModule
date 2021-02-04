@@ -2,10 +2,8 @@ package me.hjjang.excelmodule.excelmaker;
 
 import me.hjjang.excelmodule.annotation.ExcelCellMapping;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
@@ -24,61 +22,73 @@ public class ExcelHandler<T> {
     public void excelMaker(String fileName,List<T> dataList, Class clazz) throws IllegalAccessException, NoSuchFieldException, IOException, NoSuchMethodException, InvocationTargetException, ClassNotFoundException {
         File file = new File(fileName + XLS_EXTENSION);
         try (FileOutputStream fos = new FileOutputStream(file)) {
-            XSSFWorkbook newWorkBook = new XSSFWorkbook();
+            ExcelWorkBook excelWorkBook = new ExcelWorkBook();
 
-            Map<Integer, String> headerIndexMap = new HashMap<>();
-            List<String> headers = new ArrayList<>();
-            Field[] dtoFields = clazz.getDeclaredFields();
-            
-            getTargetFieldForWriteExcel(dtoFields, headers, headerIndexMap);
-            writeCell(dataList, newWorkBook, headers, headerIndexMap, clazz);
-            newWorkBook.write(fos);
+            ExcelHeader excelHeader = getTargetFieldForWriteExcel(clazz);
+            ExcelSheetData excelSheetData = new ExcelSheetData(dataList);
+            writeData(excelWorkBook, excelHeader, excelSheetData);
+            excelWorkBook.write(fos);
         }
 
     }
 
-    private void writeCell(List<T> dataList, XSSFWorkbook workbook, List<String> headers, Map<Integer, String> headerIndexMap, Class clazz) throws IllegalAccessException, NoSuchFieldException, NoSuchMethodException, InvocationTargetException, ClassNotFoundException {
-        XSSFSheet newSheet = workbook.createSheet();
-        inputHeader(newSheet, headers);
+    private void writeData(ExcelWorkBook excelWorkBook, ExcelHeader excelHeader, ExcelSheetData excelSheetData) throws IllegalAccessException, NoSuchFieldException, NoSuchMethodException, InvocationTargetException {
+        inputHeader(excelWorkBook, excelHeader.getHeaders());
 
-        for (int i = 0; i < dataList.size(); i++) {
-            XSSFRow bodyRow = newSheet.createRow(i + 1);
-
-            T object = dataList.get(i);
-            for (int j = 0; j < headers.size(); j++) {
-                Cell cell = bodyRow.createCell(j);
-                String fieldName = headerIndexMap.get(j);
-
-                Field field = clazz.getDeclaredField(fieldName);
-                field.setAccessible(true);
-                Class<?> fieldType = field.getType();
-
-                ExcelDataType dataTypeClazz = ExcelDataType.findByClassType(fieldType);
-
-                Method setCellValue = cell.getClass().getMethod(METHOD_SET_CELL_VALUE, dataTypeClazz.value());
-                setCellValue.invoke(cell, field.get(object));
-
-                XSSFCellStyle cellStyle = workbook.createCellStyle();
-                cellStyle.setDataFormat(dataTypeClazz.style());
-                cell.setCellStyle(cellStyle);
-            }
+        for (int i = 0; i < excelSheetData.dataSize(); i++) {
+            writeRow(excelWorkBook, excelHeader, excelSheetData.data(i));
         }
     }
 
-    private void getTargetFieldForWriteExcel(Field[] dtoFields, List<String> headers, Map<Integer, String> headerIndexMap) {
-        int index = 0;
+    private void writeRow(ExcelWorkBook excelWorkBook, ExcelHeader excelHeader, Object object) throws NoSuchFieldException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        XSSFRow bodyRow = excelWorkBook.newRow();
+        for (int j = 0; j < excelHeader.headerSize(); j++) {
+            Cell cell = bodyRow.createCell(j);
+            Field field = getField(excelHeader.getClassType(), excelHeader.getFieldName(j));
+            inputCelLValue(field, cell, object, excelWorkBook.getWorkBook());
+        }
+    }
+
+    private void inputCelLValue(Field field, Cell cell, Object object, XSSFWorkbook workbook) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        setCellValue(field, cell, object);
+        setCellStype(field, cell, workbook);
+    }
+
+    private Field getField(Class clazz, String fieldName) throws NoSuchFieldException {
+        return clazz.getDeclaredField(fieldName);
+    }
+
+    private void setCellValue(Field field, Cell cell, Object object) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        field.setAccessible(true);
+        Class<?> fieldType = field.getType();
+        ExcelDataType dataTypeClazz = ExcelDataType.findByClassType(fieldType);
+        Method setCellValue = cell.getClass().getMethod(METHOD_SET_CELL_VALUE, dataTypeClazz.value());
+        setCellValue.invoke(cell, field.get(object));
+    }
+
+    private void setCellStype(Field field, Cell cell, XSSFWorkbook workbook) {
+        ExcelDataType dataTypeClazz = ExcelDataType.findByClassType(field.getType());
+
+        XSSFCellStyle cellStyle = workbook.createCellStyle();
+        cellStyle.setDataFormat(dataTypeClazz.style());
+        cell.setCellStyle(cellStyle);
+    }
+
+    private ExcelHeader getTargetFieldForWriteExcel(Class clazz) {
+        Field[] dtoFields = clazz.getDeclaredFields();
+        ExcelHeader excelHeader = new ExcelHeader(clazz);
+
         for (Field dtoField : dtoFields) {
             if (dtoField.isAnnotationPresent(ExcelCellMapping.class)) {
                 ExcelCellMapping excelCellMapping = dtoField.getAnnotation(ExcelCellMapping.class);
-                headers.add(excelCellMapping.name());
-                headerIndexMap.put(index, dtoField.getName());
-                index++;
+                excelHeader.addHeader(excelCellMapping.name(), dtoField.getName());
             }
         }
+        return excelHeader;
     }
 
-    private void inputHeader(XSSFSheet newSheet, List<String> headers) {
-        XSSFRow headerRow = newSheet.createRow(0);
+    private void inputHeader(ExcelWorkBook excelWorkBook, List<String> headers) {
+        XSSFRow headerRow = excelWorkBook.newRow();
         for (int i = 0; i < headers.size(); i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers.get(i));
