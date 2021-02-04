@@ -36,16 +36,16 @@ public class ExcelHandler<T> {
     private void writeData(ExcelManager excelManager, ExcelHeader excelHeader, ExcelSheetData excelSheetData) throws IllegalAccessException, NoSuchFieldException, NoSuchMethodException, InvocationTargetException {
         inputHeader(excelManager, excelHeader.getHeaders());
 
-        for (int i = 0; i < excelSheetData.dataSize(); i++) {
-            writeRow(excelManager, excelHeader, excelSheetData.data(i));
+        for (int dateIndex = 0; dateIndex < excelSheetData.dataSize(); dateIndex++) {
+            writeRow(excelManager, excelHeader, excelSheetData.data(dateIndex));
         }
     }
 
     private void writeRow(ExcelManager excelManager, ExcelHeader excelHeader, Object object) throws NoSuchFieldException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         XSSFRow bodyRow = excelManager.newRow();
-        for (int j = 0; j < excelHeader.headerSize(); j++) {
-            Cell cell = bodyRow.createCell(j);
-            Field field = getField(excelHeader.getClassType(), excelHeader.getFieldName(j));
+        for (int headerIndex = 0; headerIndex < excelHeader.headerSize(); headerIndex++) {
+            Cell cell = bodyRow.createCell(headerIndex);
+            Field field = getField(excelHeader.getClassType(), excelHeader.getFieldName(headerIndex));
             inputCelLValue(field, cell, object, excelManager.getWorkBook());
         }
     }
@@ -90,9 +90,10 @@ public class ExcelHandler<T> {
 
     private void inputHeader(ExcelManager excelManager, List<String> headers) {
         XSSFRow headerRow = excelManager.newRow();
-        for (int i = 0; i < headers.size(); i++) {
-            Cell cell = headerRow.createCell(i);
-            cell.setCellValue(headers.get(i));
+        for (int headerIndex = 0; headerIndex < headers.size(); headerIndex++) {
+            Cell cell = headerRow.createCell(headerIndex);
+            cell.setCellValue(headers.get(headerIndex));
+            excelManager.getWorkBook().getSheetAt(0).autoSizeColumn(headerIndex);
         }
     }
 }
