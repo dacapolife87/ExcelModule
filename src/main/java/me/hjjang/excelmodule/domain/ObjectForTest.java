@@ -1,5 +1,6 @@
 package me.hjjang.excelmodule.domain;
 
+import me.hjjang.excelmodule.annotation.DateTimeFormat;
 import me.hjjang.excelmodule.annotation.ExcelCellMapping;
 
 import java.time.LocalDateTime;
@@ -27,7 +28,11 @@ public class ObjectForTest {
     @ExcelCellMapping(name = "LocalDateTime")
     private LocalDateTime localDateTime;
 
-    public ObjectForTest(Long longTypeWrap, long longTypePrimitive, String stringType, String stringTypeHeaderKorean, Integer intTypeWrap, int intTypePrimitive, LocalDateTime localDateTime) {
+    @ExcelCellMapping(name = "LocalDateTimeFormat")
+    @DateTimeFormat(format = "yyyy/mm/dd")
+    private LocalDateTime localDateTimeFormat;
+
+    public ObjectForTest(Long longTypeWrap, long longTypePrimitive, String stringType, String stringTypeHeaderKorean, Integer intTypeWrap, int intTypePrimitive, LocalDateTime localDateTime, LocalDateTime localDateTimeFormat) {
         this.longTypeWrap = longTypeWrap;
         this.longTypePrimitive = longTypePrimitive;
         this.stringType = stringType;
@@ -35,5 +40,6 @@ public class ObjectForTest {
         this.intTypeWrap = intTypeWrap;
         this.intTypePrimitive = intTypePrimitive;
         this.localDateTime = localDateTime;
+        this.localDateTimeFormat = localDateTimeFormat;
     }
 }

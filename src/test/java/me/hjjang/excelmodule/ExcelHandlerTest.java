@@ -40,11 +40,11 @@ class ExcelHandlerTest {
         excelHandler.excelMaker("TeamInfo",teams, Team.class);
 
         List<ObjectForTest> objectForTestList = new ArrayList<>();
-        objectForTestList.add(new ObjectForTest(Long.valueOf(100L), 100L, "String0","문자열0", Integer.valueOf(100),100, LocalDateTime.now()));
-        objectForTestList.add(new ObjectForTest(Long.valueOf(101L), 101L, "String1","문자열1", Integer.valueOf(101),101, LocalDateTime.now()));
-        objectForTestList.add(new ObjectForTest(Long.valueOf(102L), 102L, "String2","문자열2", Integer.valueOf(102),102, LocalDateTime.now()));
-        objectForTestList.add(new ObjectForTest(Long.valueOf(103L), 103L, "String3","문자열3", Integer.valueOf(103),103, LocalDateTime.now()));
-        objectForTestList.add(new ObjectForTest(Long.valueOf(104L), 104L, "String4","문자열4", Integer.valueOf(104),104, LocalDateTime.now()));
+        objectForTestList.add(new ObjectForTest(Long.valueOf(100L), 100L, "String0","문자열0", Integer.valueOf(100),100, LocalDateTime.now(),LocalDateTime.now()));
+        objectForTestList.add(new ObjectForTest(Long.valueOf(101L), 101L, "String1","문자열1", Integer.valueOf(101),101, LocalDateTime.now(),LocalDateTime.now()));
+        objectForTestList.add(new ObjectForTest(Long.valueOf(102L), 102L, "String2","문자열2", Integer.valueOf(102),102, LocalDateTime.now(),LocalDateTime.now()));
+        objectForTestList.add(new ObjectForTest(Long.valueOf(103L), 103L, "String3","문자열3", Integer.valueOf(103),103, LocalDateTime.now(),LocalDateTime.now()));
+        objectForTestList.add(new ObjectForTest(Long.valueOf(104L), 104L, "String4","문자열4", Integer.valueOf(104),104, LocalDateTime.now(),LocalDateTime.now()));
 
         excelHandler.excelMaker("ExcelFileTest",objectForTestList, ObjectForTest.class);
 
