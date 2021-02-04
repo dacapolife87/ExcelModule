@@ -22,30 +22,31 @@ public class ExcelHandler<T> {
     public void excelMaker(String fileName,List<T> dataList, Class clazz) throws IllegalAccessException, NoSuchFieldException, IOException, NoSuchMethodException, InvocationTargetException, ClassNotFoundException {
         File file = new File(fileName + XLS_EXTENSION);
         try (FileOutputStream fos = new FileOutputStream(file)) {
-            ExcelWorkBook excelWorkBook = new ExcelWorkBook();
+            ExcelManager excelManager = new ExcelManager();
 
             ExcelHeader excelHeader = getTargetFieldForWriteExcel(clazz);
             ExcelSheetData excelSheetData = new ExcelSheetData(dataList);
-            writeData(excelWorkBook, excelHeader, excelSheetData);
-            excelWorkBook.write(fos);
+
+            writeData(excelManager, excelHeader, excelSheetData);
+            excelManager.write(fos);
         }
 
     }
 
-    private void writeData(ExcelWorkBook excelWorkBook, ExcelHeader excelHeader, ExcelSheetData excelSheetData) throws IllegalAccessException, NoSuchFieldException, NoSuchMethodException, InvocationTargetException {
-        inputHeader(excelWorkBook, excelHeader.getHeaders());
+    private void writeData(ExcelManager excelManager, ExcelHeader excelHeader, ExcelSheetData excelSheetData) throws IllegalAccessException, NoSuchFieldException, NoSuchMethodException, InvocationTargetException {
+        inputHeader(excelManager, excelHeader.getHeaders());
 
         for (int i = 0; i < excelSheetData.dataSize(); i++) {
-            writeRow(excelWorkBook, excelHeader, excelSheetData.data(i));
+            writeRow(excelManager, excelHeader, excelSheetData.data(i));
         }
     }
 
-    private void writeRow(ExcelWorkBook excelWorkBook, ExcelHeader excelHeader, Object object) throws NoSuchFieldException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        XSSFRow bodyRow = excelWorkBook.newRow();
+    private void writeRow(ExcelManager excelManager, ExcelHeader excelHeader, Object object) throws NoSuchFieldException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        XSSFRow bodyRow = excelManager.newRow();
         for (int j = 0; j < excelHeader.headerSize(); j++) {
             Cell cell = bodyRow.createCell(j);
             Field field = getField(excelHeader.getClassType(), excelHeader.getFieldName(j));
-            inputCelLValue(field, cell, object, excelWorkBook.getWorkBook());
+            inputCelLValue(field, cell, object, excelManager.getWorkBook());
         }
     }
 
@@ -87,8 +88,8 @@ public class ExcelHandler<T> {
         return excelHeader;
     }
 
-    private void inputHeader(ExcelWorkBook excelWorkBook, List<String> headers) {
-        XSSFRow headerRow = excelWorkBook.newRow();
+    private void inputHeader(ExcelManager excelManager, List<String> headers) {
+        XSSFRow headerRow = excelManager.newRow();
         for (int i = 0; i < headers.size(); i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers.get(i));
