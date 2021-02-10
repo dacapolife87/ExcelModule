@@ -1,6 +1,8 @@
 package me.hjjang.excelmodule.excelmaker;
 
 import me.hjjang.excelmodule.annotation.ExcelCellMapping;
+import me.hjjang.excelmodule.excelmaker.enumtype.ExcelCellType;
+import me.hjjang.excelmodule.excelmaker.enumtype.ExcelDataType;
 import me.hjjang.excelmodule.excelmaker.sheetarea.ExcelHeader;
 import me.hjjang.excelmodule.excelmaker.sheetarea.ExcelSheetData;
 import org.apache.poi.ss.usermodel.Cell;
@@ -84,10 +86,9 @@ public class ExcelHandler<T> {
     }
 
     private void setCellStype(Field field, Cell cell, Workbook workbook) {
-        ExcelDataType dataTypeClazz = ExcelDataType.findByClassType(field.getType());
-
+        ExcelCellMapping excelCellMapping = field.getDeclaredAnnotation(ExcelCellMapping.class);
         CellStyle cellStyle = workbook.createCellStyle();
-        cellStyle.setDataFormat(dataTypeClazz.style());
+        cellStyle.setDataFormat(excelCellMapping.type().style());
         cell.setCellStyle(cellStyle);
     }
 

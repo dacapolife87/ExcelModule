@@ -1,6 +1,7 @@
 package me.hjjang.excelmodule.domain;
 
 import me.hjjang.excelmodule.annotation.ExcelCellMapping;
+import me.hjjang.excelmodule.excelmaker.enumtype.ExcelCellType;
 
 import java.time.LocalDateTime;
 
@@ -18,13 +19,13 @@ public class ObjectForTest {
     @ExcelCellMapping(name = "문자열")
     private String stringTypeHeaderKorean;
 
-    @ExcelCellMapping(name = "WrapperInt")
+    @ExcelCellMapping(name = "WrapperInt", type = ExcelCellType.STRING)
     private Integer intTypeWrap;
 
-    @ExcelCellMapping(name = "PrimitiveInt")
+    @ExcelCellMapping(name = "PrimitiveInt", type = ExcelCellType.STRING)
     private int intTypePrimitive;
 
-    @ExcelCellMapping(name = "LocalDateTime")
+    @ExcelCellMapping(name = "LocalDateTime", type = ExcelCellType.DATETIME)
     private LocalDateTime localDateTime;
 
     public ObjectForTest(Long longTypeWrap, long longTypePrimitive, String stringType, String stringTypeHeaderKorean, Integer intTypeWrap, int intTypePrimitive, LocalDateTime localDateTime) {
