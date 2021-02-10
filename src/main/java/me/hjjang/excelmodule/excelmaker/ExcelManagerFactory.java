@@ -5,13 +5,16 @@ import me.hjjang.excelmodule.excelmaker.type.XSSFExcelManager;
 
 public class ExcelManagerFactory {
 
+    private static final String FILE_EXTENSION_XLSX = "xlsx";
+    private static final String FILE_EXTENSION_XLS = "xls";
+
     public static ExcelManager create(String excelType) {
         ExcelManager excelManager;
         switch (excelType) {
-            case "xlsx":
+            case FILE_EXTENSION_XLSX:
                 excelManager = new XSSFExcelManager();
                 break;
-            case "xls":
+            case FILE_EXTENSION_XLS:
                 excelManager = new HSSFExcelManager();
                 break;
             default:

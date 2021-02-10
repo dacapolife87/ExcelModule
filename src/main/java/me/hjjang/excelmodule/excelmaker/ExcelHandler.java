@@ -1,7 +1,6 @@
 package me.hjjang.excelmodule.excelmaker;
 
 import me.hjjang.excelmodule.annotation.ExcelCellMapping;
-import me.hjjang.excelmodule.excelmaker.enumtype.ExcelCellType;
 import me.hjjang.excelmodule.excelmaker.enumtype.ExcelDataType;
 import me.hjjang.excelmodule.excelmaker.sheetarea.ExcelHeader;
 import me.hjjang.excelmodule.excelmaker.sheetarea.ExcelSheetData;
