@@ -27,8 +27,8 @@ public enum ExcelDataType {
         return type;
     }
 
-    public int style() {
-        return style;
+    public short style() {
+        return (short)style;
     }
     public static ExcelDataType findByClassType(Class clazz){
         return Arrays.stream(ExcelDataType.values())

@@ -2,10 +2,12 @@ package me.hjjang.excelmodule.excelmaker;
 
 import me.hjjang.excelmodule.annotation.DateTimeFormat;
 import me.hjjang.excelmodule.annotation.ExcelCellMapping;
+import me.hjjang.excelmodule.excelmaker.sheetarea.ExcelHeader;
+import me.hjjang.excelmodule.excelmaker.sheetarea.ExcelSheetData;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,20 +19,35 @@ import java.util.*;
 
 public class ExcelHandler<T> {
 
-    private static final String XLS_EXTENSION = ".xlsx";
+    private static final String FILE_DOT = ".";
     private static final String METHOD_SET_CELL_VALUE = "setCellValue";
 
-    public void excelMaker(String fileName,List<T> dataList, Class clazz) throws IllegalAccessException, NoSuchFieldException, IOException, NoSuchMethodException, InvocationTargetException {
-        File file = new File(fileName + XLS_EXTENSION);
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            ExcelManager excelManager = new ExcelManager();
+    private final String excelType;
 
+    public ExcelHandler() {
+        System.out.println("ExcelType Set DefaultValue : xlsx !!");
+        this.excelType = "xlsx";
+    }
+
+    public ExcelHandler(String excelType) {
+        this.excelType = excelType;
+    }
+
+    public void excelMaker(String fileName, List<T> dataList, Class clazz) throws IllegalAccessException, NoSuchFieldException, IOException, NoSuchMethodException, InvocationTargetException, ClassNotFoundException {
+        File file = newExcelFile(fileName, excelType);
+
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            ExcelManager excelManager = ExcelManagerFactory.create(excelType);
             ExcelHeader excelHeader = getTargetFieldForWriteExcel(clazz);
             ExcelSheetData excelSheetData = new ExcelSheetData(dataList);
 
             writeData(excelManager, excelHeader, excelSheetData);
             excelManager.write(fos);
         }
+    }
+
+    private File newExcelFile(String fileName, String excelType) {
+        return new File(fileName + FILE_DOT + excelType);
     }
 
     private void writeData(ExcelManager excelManager, ExcelHeader excelHeader, ExcelSheetData excelSheetData) throws IllegalAccessException, NoSuchFieldException, NoSuchMethodException, InvocationTargetException {
@@ -42,15 +59,16 @@ public class ExcelHandler<T> {
     }
 
     private void writeRow(ExcelManager excelManager, ExcelHeader excelHeader, Object object) throws NoSuchFieldException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        XSSFRow bodyRow = excelManager.newRow();
+        Row bodyRow = excelManager.newRow();
         for (int headerIndex = 0; headerIndex < excelHeader.headerSize(); headerIndex++) {
             Cell cell = bodyRow.createCell(headerIndex);
             Field field = getField(excelHeader.getClassType(), excelHeader.getFieldName(headerIndex));
+
             inputCelLValue(field, cell, object, excelManager.getWorkBook());
         }
     }
 
-    private void inputCelLValue(Field field, Cell cell, Object object, XSSFWorkbook workbook) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    private void inputCelLValue(Field field, Cell cell, Object object, Workbook workbook) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         setCellValue(field, cell, object);
         setCellStype(field, cell, workbook);
     }
@@ -67,18 +85,11 @@ public class ExcelHandler<T> {
         setCellValue.invoke(cell, field.get(object));
     }
 
-    private void setCellStype(Field field, Cell cell, XSSFWorkbook workbook) {
+    private void setCellStype(Field field, Cell cell, Workbook workbook) {
         ExcelDataType dataTypeClazz = ExcelDataType.findByClassType(field.getType());
 
-        XSSFCellStyle cellStyle = workbook.createCellStyle();
-        int format = dataTypeClazz.style();
-        if(field.isAnnotationPresent(DateTimeFormat.class)) {
-            System.out.println("Format!!!");
-            DateTimeFormat timeFormat = field.getAnnotation(DateTimeFormat.class);
-            format = workbook.getCreationHelper().createDataFormat().getFormat(timeFormat.format());
-        }
-
-        cellStyle.setDataFormat(format);
+        CellStyle cellStyle = workbook.createCellStyle();
+        cellStyle.setDataFormat(dataTypeClazz.style());
         cell.setCellStyle(cellStyle);
     }
 
@@ -96,7 +107,7 @@ public class ExcelHandler<T> {
     }
 
     private void inputHeader(ExcelManager excelManager, List<String> headers) {
-        XSSFRow headerRow = excelManager.newRow();
+        Row headerRow = excelManager.newRow();
         for (int headerIndex = 0; headerIndex < headers.size(); headerIndex++) {
             Cell cell = headerRow.createCell(headerIndex);
             cell.setCellValue(headers.get(headerIndex));
