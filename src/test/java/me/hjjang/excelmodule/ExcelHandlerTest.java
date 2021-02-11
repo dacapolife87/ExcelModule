@@ -18,7 +18,7 @@ class ExcelHandlerTest {
 
     @Test
     void createExcel() throws NoSuchFieldException, IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, ClassNotFoundException {
-        ExcelHandler excelHandler = new ExcelHandler();
+        ExcelHandler excelHandler = ExcelHandler.createXLSX();
         String fileName = "TestExcel";
         List<Person> personList = new ArrayList<>();
         personList.add(new Person("hjjang1", 15, "seoul", ""));

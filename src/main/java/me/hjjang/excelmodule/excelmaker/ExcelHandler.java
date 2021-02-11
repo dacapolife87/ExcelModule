@@ -21,17 +21,23 @@ public class ExcelHandler<T> {
 
     private static final String FILE_DOT = ".";
     private static final String METHOD_SET_CELL_VALUE = "setCellValue";
+    private static final String FILE_EXTENSION_XLSX = "xlsx";
+    private static final String FILE_EXTENSION_XLS = "xls";
 
-    private final String excelType;
+    private String excelType;
 
-    public ExcelHandler() {
-        System.out.println("ExcelType Set DefaultValue : xlsx !!");
-        this.excelType = "xlsx";
-    }
-
-    public ExcelHandler(String excelType) {
+    private ExcelHandler(String excelType) {
         this.excelType = excelType;
     }
+
+    public static ExcelHandler createXLSX() {
+        return new ExcelHandler(FILE_EXTENSION_XLSX);
+    }
+
+    public static ExcelHandler createXLS() {
+        return new ExcelHandler(FILE_EXTENSION_XLS);
+    }
+
 
     public void excelMaker(String fileName, List<T> dataList, Class clazz) throws IllegalAccessException, NoSuchFieldException, IOException, NoSuchMethodException, InvocationTargetException, ClassNotFoundException {
         File file = newExcelFile(fileName, excelType);
